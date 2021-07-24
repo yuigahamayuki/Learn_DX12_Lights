@@ -121,6 +121,15 @@ void Scene::KeyDown(UINT8 key)
   case '4':
     camera_index_ = 3;
     break;
+  case 'q':
+    light_type_ = LightType::kDirectionLight;
+    break;
+  case 'w':
+    light_type_ = LightType::kPointLight;
+    break;
+  case 'e':
+    light_type_ = LightType::kSpotLight;
+    break;
   default:
     break;
   }
@@ -177,7 +186,7 @@ void Scene::CreateScenePipelineState(ID3D12Device* device)
   }
 
   CD3DX12_ROOT_PARAMETER1 root_parameters[1];
-  root_parameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_VERTEX);
+  root_parameters[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC, D3D12_SHADER_VISIBILITY_ALL);
 
   CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC root_signature_desc;
   root_signature_desc.Init_1_1(1, root_parameters,
@@ -185,8 +194,8 @@ void Scene::CreateScenePipelineState(ID3D12Device* device)
     D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
     D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
     D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-    D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-    D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS);
+    D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+  );
   ComPtr<ID3DBlob> root_signature_blob;
   ComPtr<ID3DBlob> error;
   ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&root_signature_desc, featureData.HighestVersion, &root_signature_blob, &error));
@@ -197,6 +206,7 @@ void Scene::CreateScenePipelineState(ID3D12Device* device)
 
   D3D12_INPUT_ELEMENT_DESC input_element_descs[] = {
     {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+    {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
     {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
   };
   D3D12_INPUT_LAYOUT_DESC input_layout_desc{};
@@ -289,7 +299,7 @@ void Scene::CreateCameraDrawPipelineState(ID3D12Device* device)
 
 void Scene::CreateAssets(ID3D12Device* device)
 {
-  AssetsManager::Vertex* vertices_data;
+  AssetsManager::VertexWithNormalColor* vertices_data;
   AssetsManager::GetSharedInstance().GetWorldQuadVertexData(&vertices_data);
   size_t vertex_data_size = AssetsManager::GetSharedInstance().GetWorldQuadVertexDataSize();
 
@@ -318,7 +328,7 @@ void Scene::CreateAssets(ID3D12Device* device)
 
   vertex_buffer_view_.BufferLocation = vertex_buffer_->GetGPUVirtualAddress();
   vertex_buffer_view_.SizeInBytes = static_cast<UINT>(vertex_data_size);
-  vertex_buffer_view_.StrideInBytes = static_cast<UINT>(AssetsManager::GetSharedInstance().GetVertexStride());
+  vertex_buffer_view_.StrideInBytes = static_cast<UINT>(AssetsManager::GetSharedInstance().GetVerteWithNormalColorStide());
 
   DWORD* indices_data = nullptr;
   AssetsManager::GetSharedInstance().GetWorldQuadIndexData(&indices_data);
@@ -384,6 +394,30 @@ void Scene::UpdateConstantBuffer()
 {
   XMStoreFloat4x4(&scene_constant_buffer_.model, XMMatrixIdentity());
   cameras_[camera_index_].Get3DViewProjMatricesLH(&scene_constant_buffer_.view, &scene_constant_buffer_.proj, 90.f, view_port_.Width, view_port_.Height);
+
+  // update light related
+  XMStoreFloat4(&scene_constant_buffer_.camera_world_pos, cameras_[camera_index_].mEye);
+  scene_constant_buffer_.light_type = static_cast<int>(light_type_);
+
+  switch (light_type_) {
+    case LightType::kDirectionLight:
+      scene_constant_buffer_.light_world_direction_or_position = directional_light_.world_direction();
+      scene_constant_buffer_.light_color = directional_light_.light_color();
+      break;
+
+    case LightType::kPointLight:
+      scene_constant_buffer_.light_world_direction_or_position = point_light_.world_pos();
+      scene_constant_buffer_.light_color = point_light_.light_color();
+      break;
+
+    case LightType::kSpotLight:
+      scene_constant_buffer_.light_world_direction_or_position = spot_light_.world_pos();
+      scene_constant_buffer_.light_color = spot_light_.light_color();
+      break;
+
+    default:
+      break;
+  }
 }
 
 void Scene::CommitConstantBuffer()

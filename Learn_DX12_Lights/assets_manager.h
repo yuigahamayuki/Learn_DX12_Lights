@@ -19,6 +19,25 @@ public:
     float color_[3]{};
   };
 
+  struct VertexWithNormalColor {
+    VertexWithNormalColor() = default;
+    VertexWithNormalColor(float x, float y, float z, float normal_x, float normal_y, float normal_z, float r, float g, float b) {
+      position_[0] = x;
+      position_[1] = y;
+      position_[2] = z;
+      normal_[0] = normal_x;
+      normal_[1] = normal_y;
+      normal_[2] = normal_z;
+      color_[0] = r;
+      color_[1] = g;
+      color_[2] = b;
+    }
+
+    float position_[3]{};
+    float normal_[3]{};
+    float color_[3]{};
+  };
+
   static AssetsManager& GetSharedInstance();
 
   ~AssetsManager();
@@ -28,6 +47,10 @@ public:
 
   size_t GetVertexStride() const {
     return sizeof(Vertex);
+  }
+
+  size_t GetVerteWithNormalColorStide() const {
+    return sizeof(VertexWithNormalColor);
   }
 
   // ******  quad in screen space start ******
@@ -61,16 +84,16 @@ public:
 
   // ******  quad in world space start ******
 
-  void GetWorldQuadVertexData(Vertex** vertices_data) {
-    (*vertices_data) = new Vertex[4];
-    (*vertices_data)[0] = Vertex(-1.0f, 0.0f, -1.0f, 0.6039f, 0.7843f, 0.8863f);
-    (*vertices_data)[1] = Vertex(-1.0f, 0.0f, 1.0f, 0.6039f, 0.7843f, 0.8863f);
-    (*vertices_data)[2] = Vertex(1.0f, 0.0f, -1.0f, 0.6039f, 0.7843f, 0.8863f);
-    (*vertices_data)[3] = Vertex(1.0f, 0.0f, 1.0f, 0.6039f, 0.7843f, 0.8863f);
+  void GetWorldQuadVertexData(VertexWithNormalColor** vertices_data) {
+    (*vertices_data) = new VertexWithNormalColor[4];
+    (*vertices_data)[0] = VertexWithNormalColor(-1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.6039f, 0.7843f, 0.8863f);
+    (*vertices_data)[1] = VertexWithNormalColor(-1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.6039f, 0.7843f, 0.8863f);
+    (*vertices_data)[2] = VertexWithNormalColor(1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.6039f, 0.7843f, 0.8863f);
+    (*vertices_data)[3] = VertexWithNormalColor(1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.6039f, 0.7843f, 0.8863f);
   }
 
   size_t GetWorldQuadVertexDataSize() const {
-    return sizeof(Vertex) * 4;
+    return sizeof(VertexWithNormalColor) * 4;
   }
 
   void GetWorldQuadIndexData(DWORD** indices_data) const {

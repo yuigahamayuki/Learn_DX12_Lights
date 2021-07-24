@@ -23,6 +23,10 @@ struct SceneConstantBuffer {
   XMFLOAT4X4 model;
   XMFLOAT4X4 view;
   XMFLOAT4X4 proj;
+  XMFLOAT4 light_world_direction_or_position;  // direction: directional_light, position: point light or spot light
+  XMFLOAT4 light_color;
+  XMFLOAT4 camera_world_pos;
+  int light_type;
 };
 
 class Scene {
@@ -102,7 +106,9 @@ private:
 
   UINT camera_index_ = 0;  // camera index of current viewing camera
 
+  // light related
   DirectionalLight directional_light_;
   PointLight point_light_;
   SpotLight spot_light_;
+  LightType light_type_ = LightType::kDirectionLight;
 };
