@@ -148,6 +148,7 @@
     <ClCompile Include="my_engine.cpp" />
     <ClCompile Include="point_light.cpp" />
     <ClCompile Include="scene.cpp" />
+    <ClCompile Include="spot_light.cpp" />
     <ClCompile Include="win32_application.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +162,7 @@
     <ClInclude Include="my_engine.h" />
     <ClInclude Include="point_light.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="spot_light.h" />
     <ClInclude Include="win32_application.h" />
   </ItemGroup>
   <ItemGroup>

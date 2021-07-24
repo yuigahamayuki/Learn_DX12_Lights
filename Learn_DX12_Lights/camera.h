@@ -18,6 +18,13 @@ using namespace DirectX;
 class Camera
 {
 public:
+  struct Vertex {
+    XMFLOAT3 position_;
+    XMFLOAT3 look_direction_;
+    XMFLOAT3 right_;
+    XMFLOAT3 refined_up_;
+  };
+
   Camera();
   ~Camera();
 
@@ -34,11 +41,18 @@ public:
 
   void UpdateDirections();
 
+  void GetCameraVertexData(Vertex* vertex) {
+    XMStoreFloat3(&(vertex->position_), mEye);
+    vertex->look_direction_ = XMFLOAT3(look_direction_.x, look_direction_.y, look_direction_.z);
+    vertex->right_ = XMFLOAT3(right_.x, right_.y, right_.z);
+    vertex->refined_up_ = XMFLOAT3(refined_up_.x, refined_up_.y, refined_up_.z);
+  }
+
   XMVECTOR mEye; // Where the camera is in world space. Z increases into of the screen when using LH coord system (which we are and DX uses)
   XMVECTOR mAt; // What the camera is looking at (world origin)
   XMVECTOR mUp; // Which way is up
 
-  XMFLOAT4 look_direction_;
+  XMFLOAT4 look_direction_;  // camera pos to target
   XMFLOAT4 right_;
   XMFLOAT4 refined_up_;
 private:

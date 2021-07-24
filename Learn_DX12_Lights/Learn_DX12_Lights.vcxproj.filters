@@ -42,6 +42,9 @@
     <ClCompile Include="point_light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="spot_light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="assets_manager.h">
@@ -75,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="point_light.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spot_light.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
