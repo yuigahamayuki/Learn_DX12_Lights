@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+.vs
+Learn_DX12_Lights/x64
+x64
