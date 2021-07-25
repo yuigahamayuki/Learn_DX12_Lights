@@ -29,10 +29,23 @@ float4 main(PSInput ps_input) : SV_TARGET
     light_world_direction = -normalize(light_world_direction_or_position);
   }
   else if (light_type == 1 || light_type == 2) {
-    // todo
+    light_world_direction = normalize(light_world_direction_or_position - ps_input.world_pos);
   }
   float3 world_normal = normalize(ps_input.world_normal);
   float diff = saturate(dot(light_world_direction, world_normal));
+  if (light_type == 1) {
+    float epsilon = 0.01;
+    float light_pixel_distance = length(light_world_direction_or_position - ps_input.world_pos);
+    float cutoff_distance = 7.0f;
+    diff *= cutoff_distance * cutoff_distance / (light_pixel_distance * light_pixel_distance + epsilon);
+  }
+  if (light_type == 2) {
+    float cosine_theta_s = 0.5f;  // 30 degrees
+    float cosine_theta_u = 0.866f;  //60 degrees
+    float3 spot_light_direction = float3(0.0f, -1.0f, 0.0f);
+    float cosine_theta_p = dot(spot_light_direction, -light_world_direction);
+    diff *= saturate((cosine_theta_s - cosine_theta_u) / (cosine_theta_p - cosine_theta_u));
+  }
   float3 diffuse_color = diff * ps_input.color;
 
   // calculate specular color
@@ -42,4 +55,5 @@ float4 main(PSInput ps_input) : SV_TARGET
   float3 specular_color = float3(0.3f, 0.3f, 0.3f) * spec;
 
 	return float4(ambient_color + diffuse_color + specular_color, 1.0f);
+  
 }

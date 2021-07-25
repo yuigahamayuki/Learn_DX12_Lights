@@ -121,13 +121,13 @@ void Scene::KeyDown(UINT8 key)
   case '4':
     camera_index_ = 3;
     break;
-  case 'q':
+  case 'Q':
     light_type_ = LightType::kDirectionLight;
     break;
-  case 'w':
+  case 'W':
     light_type_ = LightType::kPointLight;
     break;
-  case 'e':
+  case 'E':
     light_type_ = LightType::kSpotLight;
     break;
   default:
