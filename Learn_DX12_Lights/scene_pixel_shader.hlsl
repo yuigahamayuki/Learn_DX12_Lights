@@ -40,11 +40,13 @@ float4 main(PSInput ps_input) : SV_TARGET
     diff *= cutoff_distance * cutoff_distance / (light_pixel_distance * light_pixel_distance + epsilon);
   }
   if (light_type == 2) {
-    float cosine_theta_s = 0.5f;  // 30 degrees
-    float cosine_theta_u = 0.866f;  //60 degrees
+    float cosine_theta_p = 0.866f;  // 30 degrees
+    float cosine_theta_u = 0.5f;  //60 degrees
     float3 spot_light_direction = float3(0.0f, -1.0f, 0.0f);
-    float cosine_theta_p = dot(spot_light_direction, -light_world_direction);
-    diff *= saturate((cosine_theta_s - cosine_theta_u) / (cosine_theta_p - cosine_theta_u));
+    float cosine_theta_s = dot(spot_light_direction, -light_world_direction);
+    float t = saturate((cosine_theta_s - cosine_theta_u) / (cosine_theta_p - cosine_theta_u));
+    t *= t;
+    diff *= t;
   }
   float3 diffuse_color = diff * ps_input.color;
 
